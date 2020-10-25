@@ -6,6 +6,7 @@
     <e p="C:\Users\Ben Pls\RiderProjects\SudokuSolver" t="IncludeRecursive">
       <e p=".gitignore" t="Include" />
       <e p="bin" t="ExcludeRecursive" />
+      <e p="CheckSudoku.cs" t="Include" />
       <e p="Form1.cs" t="Include" />
       <e p="Form1.Designer.cs" t="Include" />
       <e p="obj" t="ExcludeRecursive">
