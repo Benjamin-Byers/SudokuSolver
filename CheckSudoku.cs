@@ -31,7 +31,7 @@ namespace SudokuSolver
             return (valid, duplicates);
         }
 
-        private (Tuple<int, int>[][], Tuple<int, int>[][], Tuple<int, int>[][]) SplitBoard(Tuple<int, int, char>[] sBoard)
+        public (Tuple<int, int>[][], Tuple<int, int>[][], Tuple<int, int>[][]) SplitBoard(Tuple<int, int, char>[] sBoard)
         {
             int[] board = new int[81];
             Tuple<int, int>[][] squares = new Tuple<int, int>[9][];
@@ -109,6 +109,7 @@ namespace SudokuSolver
             {
                 if (group.Select(i => i.Item2).Distinct().Count(i => i != -16) != 9 - group.Count(i => i.Item2 == -16))
                 {
+                    valid = false;
                     Dictionary<int, int> checkDuplicates = new Dictionary<int, int>();
 
                     foreach (var num in group)
@@ -136,8 +137,6 @@ namespace SudokuSolver
                             }
                         }
                     }
-                    
-                    return (false, duplicates);
                 }
             }
 

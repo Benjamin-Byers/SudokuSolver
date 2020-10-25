@@ -10,7 +10,7 @@ namespace SudokuSolver
     public class SudokuBoard : UserControl
     {
         private Tuple<int, int, char>[] board = new Tuple<int, int, char>[81];
-        private Tuple<int, int> mousePos = new Tuple<int, int>(0, 0);
+        private Tuple<int, int> mousePos = new Tuple<int, int>(1000, 1000);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
         private List<int> duplicates = new List<int>();
@@ -36,9 +36,23 @@ namespace SudokuSolver
             Paint += DrawBoard;
             MouseMove += HighlightSquare;
             MouseDown += SelectSquare;
+            MouseLeave += (object sender, EventArgs args) =>
+            {
+                mousePos = new Tuple<int, int>(1000, 1000);
+                Invalidate();
+            };
             KeyDown += NumPress;
+            LostFocus += DeselectSquare;
             SetGrid(validGrid);
             Invalidate();
+        }
+
+        private void InitializeComponent()
+        {
+            BackColor = Color.Transparent;
+            Size = new Size(450, 450);
+            DoubleBuffered = true;
+            CreateBoard();
         }
 
         private void SetGrid(int[][] grid)
@@ -62,22 +76,24 @@ namespace SudokuSolver
 
         private void NumPress(object sender, KeyEventArgs args)
         {
-            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && _digits.Contains(args.KeyValue - 48))
+            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (_digits.Contains(args.KeyValue - 48) || _digits.Contains(args.KeyValue - 96)))
             {
-                UpdateBoard(highlight.Item1 / 50, (int) highlight.Item2 / 50, (char) args.KeyValue);
+                char key = args.KeyValue > 90 ? (char) (args.KeyValue - 48) : (char) args.KeyValue;
+                
+                int y = highlight.Item2 / 50;
+                int x = highlight.Item1 / 50;
+                
+                UpdateBoard(x, y, key);
+                duplicates.RemoveAll(i => i == y * 9 + x);
             }
             else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (args.KeyCode == Keys.Delete || args.KeyCode == Keys.Back))
             {
-                UpdateBoard(highlight.Item1 / 50, (int) highlight.Item2 / 50, ' ');
+                int y = highlight.Item2 / 50;
+                int x = highlight.Item1 / 50;
+                
+                UpdateBoard(x, y, ' ');
+                duplicates.RemoveAll(i => i == y * 9 + x);
             }
-        }
-
-        private void InitializeComponent()
-        {
-            BackColor = Color.Transparent;
-            Size = new Size(450, 450);
-            DoubleBuffered = true;
-            CreateBoard();
         }
 
         public void UpdateBoard(int x, int y, char digit)
@@ -100,6 +116,12 @@ namespace SudokuSolver
         private void SelectSquare(object sender, MouseEventArgs args)
         {
             highlight = mousePos;
+            Invalidate();
+        }
+
+        public void DeselectSquare(object sender = null, EventArgs args = null)
+        {
+            highlight = new Tuple<int, int>(1000, 1000);
             Invalidate();
         }
 

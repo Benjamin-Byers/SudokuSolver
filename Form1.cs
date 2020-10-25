@@ -12,8 +12,9 @@ namespace SudokuSolver
 {
     public partial class Form1 : Form
     {
-        private CheckSudoku check;
         private SudokuBoard board;
+        private CheckSudoku check;
+        private SudokuSolve solve;
         private Label checkResult;
         private int BoardSize = 50;
         private List<int> duplicates;
@@ -22,6 +23,8 @@ namespace SudokuSolver
             InitializeComponent();
             board = new SudokuBoard();
             check = new CheckSudoku();
+            solve = new SudokuSolve(board, check);
+            
             
             Button checkButton = new Button()
             {
@@ -47,6 +50,7 @@ namespace SudokuSolver
             Controls.Add(checkResult);
             
             Paint += DrawBoard;
+            MouseDown += Deselect;
         }
 
         private void CheckPuzzle(object sender, EventArgs args)
@@ -64,6 +68,15 @@ namespace SudokuSolver
             {
                 checkResult.ForeColor = Color.Red;
                 checkResult.Text = "Invalid";
+            }
+            solve.Solve();
+        }
+
+        private void Deselect(object sender, MouseEventArgs args)
+        {
+            if (args.X > 450 || args.Y > 450)
+            {
+                board.DeselectSquare();
             }
         }
 

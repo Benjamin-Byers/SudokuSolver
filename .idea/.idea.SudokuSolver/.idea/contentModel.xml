@@ -19,6 +19,7 @@
       <e p="packages" t="ExcludeRecursive" />
       <e p="Program.cs" t="Include" />
       <e p="SudokuBoard.cs" t="Include" />
+      <e p="SudokuSolve.cs" t="Include" />
       <e p="SudokuSolver.csproj" t="IncludeRecursive" />
       <e p="SudokuSolver.sln" t="IncludeFlat" />
     </e>
