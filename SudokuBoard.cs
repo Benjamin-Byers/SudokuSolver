@@ -36,6 +36,7 @@ namespace SudokuSolver
             MouseDown += SelectSquare;
             KeyDown += NumPress;
             SetGrid(validGrid);
+            Invalidate();
         }
 
         private void SetGrid(int[][] grid)
@@ -44,7 +45,7 @@ namespace SudokuSolver
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    board[i * 9 + j] = new Tuple<int, int, char>(i, j, (char) (grid[j][i] + 48));
+                    board[j * 9 + i] = new Tuple<int, int, char>(i, j, (char) (grid[j][i] + 48));
                 }
             }
         }
