@@ -16,6 +16,7 @@ namespace SudokuSolver
         private SudokuBoard board;
         private Label checkResult;
         private int BoardSize = 50;
+        private List<int> duplicates;
         public Form1()
         {
             InitializeComponent();
@@ -50,7 +51,11 @@ namespace SudokuSolver
 
         private void CheckPuzzle(object sender, EventArgs args)
         {
-            if (check.CheckBoard(board.GetBoard()))
+            bool valid;
+            (valid, duplicates) = check.CheckBoard(board.GetBoard());
+            board.SetDuplicates(duplicates);
+            
+            if (valid)
             {
                 checkResult.ForeColor = Color.Green;
                 checkResult.Text = "Valid";

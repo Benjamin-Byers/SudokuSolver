@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace SudokuSolver
         private Tuple<int, int> mousePos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
+        private List<int> duplicates = new List<int>();
         private readonly int[] _digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         private Font defFont = new Font("Arial", 42, FontStyle.Regular);
 
@@ -52,13 +54,19 @@ namespace SudokuSolver
 
         public Tuple<int, int, char>[] GetBoard() { return board;}
 
+        public void SetDuplicates(List<int> dups)
+        {
+            duplicates = dups;
+            Invalidate();
+        }
+
         private void NumPress(object sender, KeyEventArgs args)
         {
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && _digits.Contains(args.KeyValue - 48))
             {
                 UpdateBoard(highlight.Item1 / 50, (int) highlight.Item2 / 50, (char) args.KeyValue);
             }
-            else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && args.KeyCode == Keys.Delete)
+            else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (args.KeyCode == Keys.Delete || args.KeyCode == Keys.Back))
             {
                 UpdateBoard(highlight.Item1 / 50, (int) highlight.Item2 / 50, ' ');
             }
@@ -116,7 +124,10 @@ namespace SudokuSolver
         {
             foreach (var square in board)
             {
-                args.Graphics.DrawString(square.Item3.ToString(), defFont, new SolidBrush(Color.Black), new Point(square.Item1 * 50 + 1, square.Item2 * 50 - 7));
+                SolidBrush brush = duplicates.Contains(square.Item2 * 9 + square.Item1)
+                    ? new SolidBrush(Color.Red)
+                    : new SolidBrush(Color.Black);
+                args.Graphics.DrawString(square.Item3.ToString(), defFont, brush, new Point(square.Item1 * 50 + 1, square.Item2 * 50 - 7));
             }
             
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)))
