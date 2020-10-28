@@ -6,13 +6,13 @@ namespace SudokuSolver
 {
     public class CheckSudoku
     {
-        public (bool, List<int>) CheckBoard(Tuple<int, int, char>[] board)
+        public (bool, List<int>) CheckBoard(char[] board)
         {
             bool valid;
             List<int> add;
             List<int> duplicates = new List<int>();
 
-            //if (!CheckFull(board)) return false;
+            if (!CheckFull(board)) return (false, duplicates);
             
             (Tuple<int, int>[][] squares, Tuple<int, int>[][] columns, Tuple<int, int>[][] rows) = SplitBoard(board);
 
@@ -31,7 +31,7 @@ namespace SudokuSolver
             return (valid, duplicates);
         }
 
-        public (Tuple<int, int>[][], Tuple<int, int>[][], Tuple<int, int>[][]) SplitBoard(Tuple<int, int, char>[] sBoard)
+        public (Tuple<int, int>[][], Tuple<int, int>[][], Tuple<int, int>[][]) SplitBoard(char[] sBoard)
         {
             int[] board = new int[81];
             Tuple<int, int>[][] squares = new Tuple<int, int>[9][];
@@ -40,7 +40,7 @@ namespace SudokuSolver
 
             for (int i = 0; i < 81; i++)
             {
-                board[i] = sBoard[i].Item3 - 48;
+                board[i] = sBoard[i] - 48;
             }
 
             for (int i = 0; i < 9; i++)
@@ -91,11 +91,11 @@ namespace SudokuSolver
             return (squares, columns, rows);
         }
 
-        private bool CheckFull(Tuple<int, int, char>[] sBoard)
+        public bool CheckFull(char[] sBoard)
         {
             foreach (var num in sBoard)
             {
-                if (num.Item3 == ' ') return false;
+                if (num == ' ') return false;
             }
 
             return true;

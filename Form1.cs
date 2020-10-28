@@ -55,6 +55,7 @@ namespace SudokuSolver
 
         private void CheckPuzzle(object sender, EventArgs args)
         {
+            solve.Solve();
             bool valid;
             (valid, duplicates) = check.CheckBoard(board.GetBoard());
             board.SetDuplicates(duplicates);
@@ -69,7 +70,6 @@ namespace SudokuSolver
                 checkResult.ForeColor = Color.Red;
                 checkResult.Text = "Invalid";
             }
-            solve.Solve();
         }
 
         private void Deselect(object sender, MouseEventArgs args)

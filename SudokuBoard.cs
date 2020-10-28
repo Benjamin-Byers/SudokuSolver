@@ -9,7 +9,7 @@ namespace SudokuSolver
 {
     public class SudokuBoard : UserControl
     {
-        private Tuple<int, int, char>[] board = new Tuple<int, int, char>[81];
+        private char[] board = new char[81];
         private Tuple<int, int> mousePos = new Tuple<int, int>(1000, 1000);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
@@ -29,6 +29,19 @@ namespace SudokuSolver
             new [] {6, 4, 5, 3, 1, 2, 9, 7, 8},
             new [] {9, 7, 8, 6, 4, 5, 3, 1, 2}
         };
+        
+        private int[][] testGrid =
+        {
+            new [] {1, 2, -16, -16, 9, 7, -16, -16, -16},
+            new [] {8, 7, -16, -16, 5, -16, -16, -16, 1},
+            new [] {-16, -16, 4, -16, -16, -16, 7, -16, 5},
+            new [] {9, -16, -16, 4, -16, 6, -16, 1, -16},
+            new [] {-16, 3, -16, 5, -16, 2, -16, 6, -16},
+            new [] {-16, 1, -16, 9, -16, 3, -16, -16, 7},
+            new [] {5, -16, 1, -16, -16, -16, 6, -16, -16},
+            new [] {7, -16, -16, -16, 2, -16, -16, 9, 8},
+            new [] {-16, -16, -16, 1, 3, -16, -16, 7, 4}
+        };
             
         public SudokuBoard()
         {
@@ -43,7 +56,7 @@ namespace SudokuSolver
             };
             KeyDown += NumPress;
             LostFocus += DeselectSquare;
-            SetGrid(validGrid);
+            //SetGrid(testGrid);
             Invalidate();
         }
 
@@ -61,12 +74,18 @@ namespace SudokuSolver
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    board[j * 9 + i] = new Tuple<int, int, char>(i, j, (char) (grid[j][i] + 48));
+                    board[j * 9 + i] = (char) (grid[j][i] + 48);
                 }
             }
         }
 
-        public Tuple<int, int, char>[] GetBoard() { return board;}
+        public char[] GetBoard() { return board;}
+
+        public void SetBoard(char[] Board)
+        {
+            board = Board;
+            Invalidate();
+        }
 
         public void SetDuplicates(List<int> dups)
         {
@@ -99,7 +118,7 @@ namespace SudokuSolver
         public void UpdateBoard(int x, int y, char digit)
         {
             int index = (y * 9) + x;
-            board[index] = new Tuple<int, int, char>(x, y, digit);
+            board[index] = digit;
             Invalidate();
         }
 
@@ -127,29 +146,31 @@ namespace SudokuSolver
 
         private void CreateBoard()
         {
+            for (int i = 0; i < board.Length; i++)
+            {
+                board[i] = ' ';
+            }
+        }
+
+        private void DrawBoard(object sender, PaintEventArgs args)
+        {
             int x = 0;
             int y = 0;
-            
-            for (int i = 0; i < board.Length; i++)
+
+            for (int i = 0; i < 81; i++)
             {
                 if (x > 8)
                 {
                     y++;
                     x = 0;
                 }
-
-                board[i] = new Tuple<int, int, char>(x++, y, ' ');
-            }
-        }
-
-        private void DrawBoard(object sender, PaintEventArgs args)
-        {
-            foreach (var square in board)
-            {
-                SolidBrush brush = duplicates.Contains(square.Item2 * 9 + square.Item1)
+                
+                SolidBrush brush = duplicates.Contains(i)
                     ? new SolidBrush(Color.Red)
                     : new SolidBrush(Color.Black);
-                args.Graphics.DrawString(square.Item3.ToString(), defFont, brush, new Point(square.Item1 * 50 + 1, square.Item2 * 50 - 7));
+                args.Graphics.DrawString(board[i].ToString(), defFont, brush, new Point(x * 50 + 1, y * 50 - 7));
+                
+                x++;
             }
             
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)))

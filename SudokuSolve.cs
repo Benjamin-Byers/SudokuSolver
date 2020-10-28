@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel.Design;
+using System.Drawing;
 using System.Linq;
 
 namespace SudokuSolver
@@ -18,61 +19,120 @@ namespace SudokuSolver
 
         public void Solve()
         {
-            Tuple<int, int, char>[] sBoard = board.GetBoard();
+            char[] sBoard = board.GetBoard();
             List<Tuple<int, List<int>>> options = FindSquareOptions(sBoard);
+            int index = options.FindIndex(i => (i.Item2.Count == options.Select(j => j.Item2.Count).Min() && i.Item2.Count != 0));
+            if (index < 0) return;
 
             while (true)
             {
-                var apple = options.FindIndex(i => i.Item2.Count == options.Select(j => j.Item2.Count).Min());
-                
-                if (true)
+                if (options.Count <= 0) return;
+                if (options[index].Item2.Count == 1)
                 {
-                    break;
+                    sBoard[options[index].Item1] = (char) (options[index].Item2.First() + 48);
+                    options = FindSquareOptions(sBoard);
+                    index = options.FindIndex(i => (i.Item2.Count == options.Select(j => j.Item2.Count).Min() && i.Item2.Count != 0));
+                    continue;
                 }
+
+                break;
             }
 
-            foreach (var set in options)
+            char[] testBoard = sBoard;
+            List<Tuple<int, List<int>>> testOptions = options; //FindSquareOptions(testBoard);
+            List<int> testSquares = new List<int>();
+            List<Tuple<int, int>> testValues = new List<Tuple<int, int>>();
+
+            while(!check.CheckFull(sBoard))
             {
+                void Undo()
+                {
+                    testBoard[testSquares.Last()] = ' ';
+                    testOptions[testValues[^1].Item1].Item2.RemoveAt(0);
+                    testValues.Remove(testValues.Last());
+                    testSquares.Remove(testSquares.Last());
+                }
                 
-            }
+                if (testOptions[index].Item2.Count > 0)
+                {
+                    testSquares.Add(testOptions[index].Item1);
+                    testValues.Add(new Tuple<int, int>(index, testOptions[index].Item2.First()));
+                    testBoard[testOptions[index].Item1] = (char) (testOptions[index].Item2.First() + 48);
+                    
+                    if (!check.CheckBoard(testBoard).Item1)
+                    {
+                        Undo();
+                    }
+                    
+                }
+                else if (!check.CheckFull(testBoard))
+                {
+                    if (testSquares.Count == 0)
+                    {
+                        Solve();
+                        return;
+                    }
+                    Undo();
+                }
+                else
+                {
+                    board.SetBoard(sBoard);
+                }
 
+                index = testOptions.FindIndex(i => i.Item2.Count == testOptions.Select(j => j.Item2.Count).Min()  && !testSquares.Contains(i.Item1));
+
+                _ = 1;
+            }
+            
             //Loop: Find Square with least options
             //Try first value, store index of first value to remove from options if not solved
             //Find options for each square as separate variable.
             //CheckSudoku.CheckValid
         }
 
-        private List<Tuple<int, List<int>>> FindSquareOptions(Tuple<int, int, char>[] sBoard)
+        private List<Tuple<int, List<int>>> FindSquareOptions(char[] sBoard)
         {
             int[] digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
             List<Tuple<int, List<int>>> options = new List<Tuple<int, List<int>>>();
             (Tuple<int, int>[][] squares, Tuple<int, int>[][] columns, Tuple<int, int>[][] rows) = check.SplitBoard(sBoard);
+            
+            int X = 0;
+            int Y = 0;
 
-            foreach (var tile in sBoard)
+            for (int i = 0; i < 81; i++)
             {
-                if (tile.Item3 != ' ') continue;
+                if (X > 8)
+                {
+                    Y++;
+                    X = 0;
+                }
+
+                if (sBoard[i].ToString() != " ")
+                {
+                    X++;
+                    continue;
+                }
                 List<int> ops = new List<int>(digits);
 
-                int index = tile.Item1 + tile.Item2 * 9;
                 int squareIndex;
-                int x, y;
+                int sqX, sqY;
                 
-                if (tile.Item1 < 3) x = 0;
-                else if (tile.Item1 < 6) x = 1;
-                else x = 2;
+                if (X < 3) sqX = 0;
+                else if (X < 6) sqX = 1;
+                else sqX = 2;
                 
-                if (tile.Item2 < 3) y = 0;
-                else if (tile.Item2 < 6) y = 1;
-                else y = 2;
+                if (Y < 3) sqY = 0;
+                else if (Y < 6) sqY = 1;
+                else sqY = 2;
 
-                squareIndex = x + 3 * y;
+                squareIndex = sqX + 3 * sqY;
 
-                foreach (var num in columns[tile.Item1].Select(i => i.Item2))
+                foreach (var num in columns[X].Select(i => i.Item2))
                 {
                     ops.Remove(num);
                 }
                 
-                foreach (var num in rows[tile.Item2].Select(i => i.Item2))
+                foreach (var num in rows[Y].Select(i => i.Item2))
                 {
                     ops.Remove(num);
                 }
@@ -82,11 +142,14 @@ namespace SudokuSolver
                     ops.Remove(num);
                 }
 
-                options.Add(new Tuple<int, List<int>>(index, ops));
+                options.Add(new Tuple<int, List<int>>(i, ops));
+                X++;
                 
                 _ = 1;
                 
             }
+
+            _ = 1;
 
             return options;
         }
