@@ -13,7 +13,7 @@ namespace SudokuSolver
             List<int> duplicates = new List<int>();
 
             if (!CheckFull(board)) return (false, duplicates);
-            
+
             (Tuple<int, int>[][] squares, Tuple<int, int>[][] columns, Tuple<int, int>[][] rows) = SplitBoard(board);
 
             (valid, add) = CheckValid(squares, true);
