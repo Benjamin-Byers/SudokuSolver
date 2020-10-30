@@ -6,13 +6,13 @@ namespace SudokuSolver
 {
     public class CheckSudoku
     {
-        public (bool, List<int>) CheckBoard(char[] board)
+        public (bool, List<int>) CheckBoard(char[] board, bool button = false)
         {
             bool valid;
             List<int> add;
             List<int> duplicates = new List<int>();
-
-            if (!CheckFull(board)) return (false, duplicates);
+            
+            if (!CheckFull(board) && !button) return (false, duplicates);
 
             (Tuple<int, int>[][] squares, Tuple<int, int>[][] columns, Tuple<int, int>[][] rows) = SplitBoard(board);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -9,11 +10,14 @@ namespace SudokuSolver
 {
     public class SudokuBoard : UserControl
     {
+        private int offsetX;
+        private int offsetY;
         private char[] board = new char[81];
         private Tuple<int, int> mousePos = new Tuple<int, int>(1000, 1000);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
         private List<int> duplicates = new List<int>();
+        private List<int> added = new List<int>();
         private readonly int[] _digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         private Font defFont = new Font("Arial", 42, FontStyle.Regular);
 
@@ -82,8 +86,11 @@ namespace SudokuSolver
             new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
         };*/
             
-        public SudokuBoard()
+        public SudokuBoard(int osX, int osY)
         {
+            offsetX = osX;
+            offsetY = osY;
+            
             InitializeComponent();
             Paint += DrawBoard;
             MouseMove += HighlightSquare;
@@ -103,6 +110,7 @@ namespace SudokuSolver
         {
             BackColor = Color.Transparent;
             Size = new Size(450, 450);
+            Location = new Point(offsetX, offsetY);
             DoubleBuffered = true;
             CreateBoard();
         }
@@ -129,6 +137,14 @@ namespace SudokuSolver
         public void SetDuplicates(List<int> dups)
         {
             duplicates = dups;
+            added.Clear();
+            Invalidate();
+        }
+        
+        public void SetAdded(List<int> add)
+        {
+            added = add;
+            duplicates.Clear();
             Invalidate();
         }
 
@@ -143,6 +159,7 @@ namespace SudokuSolver
                 
                 UpdateBoard(x, y, key);
                 duplicates.RemoveAll(i => i == y * 9 + x);
+                added.RemoveAll(i => i == y * 9 + x);
             }
             else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (args.KeyCode == Keys.Delete || args.KeyCode == Keys.Back))
             {
@@ -151,6 +168,7 @@ namespace SudokuSolver
                 
                 UpdateBoard(x, y, ' ');
                 duplicates.RemoveAll(i => i == y * 9 + x);
+                added.RemoveAll(i => i == y * 9 + x);
             }
         }
 
@@ -195,6 +213,7 @@ namespace SudokuSolver
         {
             int x = 0;
             int y = 0;
+            SolidBrush brush;
 
             for (int i = 0; i < 81; i++)
             {
@@ -203,13 +222,21 @@ namespace SudokuSolver
                     y++;
                     x = 0;
                 }
-                
-                SolidBrush brush = duplicates.Contains(i)
-                    ? new SolidBrush(Color.Red)
-                    : new SolidBrush(Color.Black);
-                args.Graphics.DrawString(board[i].ToString(), defFont, brush, new Point(x * 50 + 1, y * 50 - 7));
-                
-                x++;
+
+                if (duplicates.Contains(i))
+                {
+                    brush = new SolidBrush(Color.Red);
+                }
+                else if (added.Contains(i))
+                {
+                    brush = new SolidBrush(Color.DarkGreen);
+                }
+                else
+                {
+                    brush = new SolidBrush(Color.Black);
+                }
+
+                args.Graphics.DrawString(board[i].ToString(), defFont, brush, new Point(x++ * 50 + 1, y * 50 - 7));
             }
             
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)))

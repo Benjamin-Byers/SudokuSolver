@@ -32,17 +32,12 @@ namespace SudokuSolver
             check = Check;
         }
 
-        public void SolvePuzzle()
+        public (bool, List<int>) Solve()
         {
-            //Make below a function. 
-            //Parameters testBoard and testOptions
-            //After loop, check if board is solved. If not, check if any squares have no options. if not, guess another number.
-            //if square has no options, remove last try from testOptions. if it's first try, remove from options.
-
-            char[] Solve(char[] board)
+            char[] SolveGrid(char[] Board)
             {
                 bool altered = true;
-                List<(int, List<int>)> ops = FindSquareOptions(board);
+                List<(int, List<int>)> ops = FindSquareOptions(Board);
                 int index;
                 
                 try
@@ -51,18 +46,18 @@ namespace SudokuSolver
                 }
                 catch (Exception)
                 {
-                    return board;
+                    return new List<char>(Board).ToArray();
                 }
                 
-                if (index < 0) return board;
+                if (index < 0) return new List<char>(Board).ToArray();
 
                 while (altered)
                 {
-                    if (ops.Count <= 0) return board;
+                    if (ops.Count <= 0) return new List<char>(Board).ToArray();
                     if (ops[index].Item2.Count == 1)
                     {
-                        board[ops[index].Item1] = (char) (ops[index].Item2.First() + 48);
-                        ops = FindSquareOptions(board);
+                        Board[ops[index].Item1] = (char) (ops[index].Item2.First() + 48);
+                        ops = FindSquareOptions(Board);
 
                         try
                         {
@@ -71,7 +66,7 @@ namespace SudokuSolver
                         }
                         catch (Exception)
                         {
-                            return board;
+                            new List<char>(Board).ToArray();
                         }
                         continue;
                     }
@@ -111,8 +106,8 @@ namespace SudokuSolver
                                 {
                                     if (opList.Item2.Contains(pair.Key))
                                     {
-                                        board[opList.Item1] = (char) (pair.Key + 48);
-                                        ops = FindSquareOptions(board);
+                                        Board[opList.Item1] = (char) (pair.Key + 48);
+                                        ops = FindSquareOptions(Board);
 
                                         try
                                         {
@@ -122,7 +117,7 @@ namespace SudokuSolver
                                         }
                                         catch (Exception)
                                         {
-                                            return board;
+                                            new List<char>(Board).ToArray();
                                         }
 
                                         altered = true;
@@ -133,17 +128,31 @@ namespace SudokuSolver
                     }
                 }
 
-                return new List<char>(board).ToArray();
+                return new List<char>(Board).ToArray();
             }
             
-            char[] sBoard = Solve(board.GetBoard());
+            char[] originalGrid = board.GetBoard();
+            char[] sBoard = SolveGrid(new List<char>(originalGrid).ToArray());
+
+            List<int> added = new List<int>();
             
             if (check.CheckBoard(sBoard).Item1)
             {
+                for (int i = 0; i < 81; i++)
+                {
+                    if (originalGrid[i] != sBoard[i])
+                    {
+                        added.Add(i);
+                    }
+                }
                 board.SetBoard(sBoard);
-                return;
+                return (true, added);
             }
             
+            if (!check.CheckBoard(sBoard, true).Item1)
+            {
+                return (false, added);
+            }
             
             char[] testBoard = new List<char>(sBoard).ToArray();
             List<(int, List<int>)> options = FindSquareOptions(sBoard);
@@ -174,15 +183,21 @@ namespace SudokuSolver
                 
                 testBoard[testOptions[^1][indices[^1]].Item1] = (char) (testOptions[^1][indices[^1]].Item2.First() + 48);
                 
-                boards.Add(Solve(testBoard));
-
-                _ = 1;
+                boards.Add(SolveGrid(testBoard));
 
                 if (check.CheckBoard(boards[^1]).Item1)
                 {
+                    for (int i = 0; i < 81; i++)
+                    {
+                        if (originalGrid[i] != boards[^1][i])
+                        {
+                            added.Add(i);
+                        }
+                    }
+                    
                     sBoard = boards[^1];
                     board.SetBoard(sBoard);
-                    return;
+                    return (true, added);
                 }
                 
                 testOptions.Add(FindSquareOptions(boards[^1]));
@@ -191,20 +206,25 @@ namespace SudokuSolver
 
                 while (noOptions)
                 {
-                    _ = 1;
                     boards.RemoveAt(boards.Count - 1);
                     testOptions.RemoveAt(testOptions.Count - 1);
-                    
-                    testOptions[^1][indices[^1]].Item2.RemoveAt(0);
-                    
+                    try
+                    {
+                        testOptions[^1][indices[^1]].Item2.RemoveAt(0);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        return (false, added);
+                    }
                     indices.RemoveAt(indices.Count - 1);
-
                     noOptions = CheckOptions();
                 }
                 
                 indices.Add(testOptions[^1].FindIndex(i => i.Item2.Count == testOptions[^1].Select(j => j.Item2.Count).Where(k => k > 0).Min()));
                 
             }
+
+            return (false, added);
         }
 
         private List<(int, List<int>)> FindSquareOptions(char[] sBoard)
