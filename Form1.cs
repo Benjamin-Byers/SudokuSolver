@@ -55,7 +55,7 @@ namespace SudokuSolver
 
         private void CheckPuzzle(object sender, EventArgs args)
         {
-            solve.Solve();
+            solve.SolvePuzzle();
             bool valid;
             (valid, duplicates) = check.CheckBoard(board.GetBoard());
             board.SetDuplicates(duplicates);

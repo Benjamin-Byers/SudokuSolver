@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http.Headers;
 using Microsoft.VisualBasic;
 
 namespace SudokuSolver
@@ -31,96 +32,179 @@ namespace SudokuSolver
             check = Check;
         }
 
-        public void Solve()
+        public void SolvePuzzle()
         {
-            char[] sBoard = board.GetBoard();
-            List<(int, List<int>)> options = FindSquareOptions(sBoard);
-            int index = options.FindIndex(i => i.Item2.Count == options.Select(j => j.Item2.Count).Where(k => k > 0).Min());
-            if (index < 0) return;
+            //Make below a function. 
+            //Parameters testBoard and testOptions
+            //After loop, check if board is solved. If not, check if any squares have no options. if not, guess another number.
+            //if square has no options, remove last try from testOptions. if it's first try, remove from options.
 
-            bool altered = true;
-
-            while (altered)
+            char[] Solve(char[] board)
             {
-                if (options.Count <= 0) return;
-                if (options[index].Item2.Count == 1)
-                {
-                    sBoard[options[index].Item1] = (char) (options[index].Item2.First() + 48);
-                    options = FindSquareOptions(sBoard);
-                    
-                    try
-                    {
-                        index = options.FindIndex(i => i.Item2.Count == options.Select(j => j.Item2.Count).Where(k => k > 0).Min());
-                    }
-                    catch (Exception e)
-                    {
-                        return;
-                    }
-                    
-                    altered = true;
-                    continue;
+                bool altered = true;
+                List<(int, List<int>)> ops = FindSquareOptions(board);
+                int index;
+                
+                try
+                { 
+                    index = ops.FindIndex(i => i.Item2.Count == ops.Select(j => j.Item2.Count).Where(k => k > 0).Min());
                 }
-
-                altered = false;
-
-                foreach (var square in sqIndices)
+                catch (Exception)
                 {
-                    List<(int, List<int>)> sqOps = new List<(int, List<int>)>();
-                    foreach (var tile in square)
+                    return board;
+                }
+                
+                if (index < 0) return board;
+
+                while (altered)
+                {
+                    if (ops.Count <= 0) return board;
+                    if (ops[index].Item2.Count == 1)
                     {
-                        sqOps.Add(options[tile]);
-                    }
-                    
-                    Dictionary<int, int> sqOpCounts = new Dictionary<int, int>();
-                    
-                    foreach (var opList in sqOps)
-                    {
-                        foreach (var num in opList.Item2)
+                        board[ops[index].Item1] = (char) (ops[index].Item2.First() + 48);
+                        ops = FindSquareOptions(board);
+
+                        try
                         {
-                            if (sqOpCounts.ContainsKey(num))
+                            index = ops.FindIndex(i =>
+                                i.Item2.Count == ops.Select(j => j.Item2.Count).Where(k => k > 0).Min());
+                        }
+                        catch (Exception)
+                        {
+                            return board;
+                        }
+                        continue;
+                    }
+
+                    altered = false;
+
+                    foreach (var square in sqIndices)
+                    {
+                        List<(int, List<int>)> sqOps = new List<(int, List<int>)>();
+                        foreach (var tile in square)
+                        {
+                            sqOps.Add(ops[tile]);
+                        }
+
+                        Dictionary<int, int> sqOpCounts = new Dictionary<int, int>();
+
+                        foreach (var opList in sqOps)
+                        {
+                            foreach (var num in opList.Item2)
                             {
-                                sqOpCounts[num] += 1;
-                            }
-                            else
-                            {
-                                sqOpCounts.Add(num, 1);
+                                if (sqOpCounts.ContainsKey(num))
+                                {
+                                    sqOpCounts[num] += 1;
+                                }
+                                else
+                                {
+                                    sqOpCounts.Add(num, 1);
+                                }
                             }
                         }
-                    }
 
-                    foreach (var pair in sqOpCounts)
-                    {
-                        if (pair.Value == 1)
+                        foreach (var pair in sqOpCounts)
                         {
-                            foreach (var opList in sqOps)
+                            if (pair.Value == 1)
                             {
-                                if (opList.Item2.Contains(pair.Key))
+                                foreach (var opList in sqOps)
                                 {
-                                    sBoard[opList.Item1] = (char) (pair.Key + 48);
-                                    options = FindSquareOptions(sBoard);
-                                    
-                                    try
+                                    if (opList.Item2.Contains(pair.Key))
                                     {
-                                        index = options.FindIndex(i => i.Item2.Count == options.Select(j => j.Item2.Count).Where(k => k > 0).Min());
+                                        board[opList.Item1] = (char) (pair.Key + 48);
+                                        ops = FindSquareOptions(board);
+
+                                        try
+                                        {
+                                            index = ops.FindIndex(i =>
+                                                i.Item2.Count == ops.Select(j => j.Item2.Count).Where(k => k > 0)
+                                                    .Min());
+                                        }
+                                        catch (Exception)
+                                        {
+                                            return board;
+                                        }
+
+                                        altered = true;
                                     }
-                                    catch (Exception e)
-                                    {
-                                        return;
-                                    }
-                                    
-                                    altered = true;
                                 }
                             }
                         }
                     }
                 }
+
+                return new List<char>(board).ToArray();
             }
             
-            board.SetBoard(sBoard);
-            //Loop: Find Square with least options
-            //Try first value, store index of first value to remove from options if not solved
-            //Find options for each square as separate variable.
-            //CheckSudoku.CheckValid
+            char[] sBoard = Solve(board.GetBoard());
+            
+            if (check.CheckBoard(sBoard).Item1)
+            {
+                board.SetBoard(sBoard);
+                return;
+            }
+            
+            
+            char[] testBoard = new List<char>(sBoard).ToArray();
+            List<(int, List<int>)> options = FindSquareOptions(sBoard);
+            List<List<(int, List<int>)>> testOptions = new List<List<(int, List<int>)>>();
+            List<int> indices = new List<int>();
+            List<char[]> boards = new List<char[]>();
+            testOptions.Add(options);
+            indices.Add(options.FindIndex(i => i.Item2.Count == options.Select(j => j.Item2.Count).Where(k => k > 0).Min()));
+            boards.Add(testBoard);
+
+            bool CheckOptions()
+            {
+                if (check.CheckFull(boards[^1])) return true;
+                foreach (var optList in testOptions[^1])
+                {
+                    if (optList.Item2.Count == 0 && boards[^1][optList.Item1] == 32)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            while (!check.CheckBoard(boards[^1]).Item1)
+            {
+                testBoard = new List<char>(boards[^1]).ToArray();
+                
+                testBoard[testOptions[^1][indices[^1]].Item1] = (char) (testOptions[^1][indices[^1]].Item2.First() + 48);
+                
+                boards.Add(Solve(testBoard));
+
+                _ = 1;
+
+                if (check.CheckBoard(boards[^1]).Item1)
+                {
+                    sBoard = boards[^1];
+                    board.SetBoard(sBoard);
+                    return;
+                }
+                
+                testOptions.Add(FindSquareOptions(boards[^1]));
+
+                bool noOptions = CheckOptions();
+
+                while (noOptions)
+                {
+                    _ = 1;
+                    boards.RemoveAt(boards.Count - 1);
+                    testOptions.RemoveAt(testOptions.Count - 1);
+                    
+                    testOptions[^1][indices[^1]].Item2.RemoveAt(0);
+                    
+                    indices.RemoveAt(indices.Count - 1);
+
+                    noOptions = CheckOptions();
+                }
+                
+                indices.Add(testOptions[^1].FindIndex(i => i.Item2.Count == testOptions[^1].Select(j => j.Item2.Count).Where(k => k > 0).Min()));
+                
+            }
         }
 
         private List<(int, List<int>)> FindSquareOptions(char[] sBoard)
@@ -180,7 +264,7 @@ namespace SudokuSolver
                 X++;
             }
             
-            return options;
+            return new List<(int, List<int>)>(options);
         }
     }
 }
