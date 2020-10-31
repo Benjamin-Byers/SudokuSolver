@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SudokuSolver
+namespace SudokuSolver //Bug: https://imgur.com/a/k1um51O
 {
     public partial class Form1 : Form
     {
