@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SudokuSolver
@@ -13,19 +7,15 @@ namespace SudokuSolver
     public partial class SudokuSolution : Form
     {
         private Board board;
-        private CheckSudoku check;
         private Solver solve;
-        private Label checkResult;
-        private Label solveResult;
         private int BoardSize = 50;
-        private List<int> duplicates;
+        //private List<int> duplicates;
         private int offsetX = 10;
         private int offsetY = 10;
         public SudokuSolution()
         {
             InitializeComponent();
             board = new Board(offsetX, offsetY);
-            check = new CheckSudoku();
             solve = new Solver();
             
             
@@ -33,7 +23,7 @@ namespace SudokuSolver
             {
                 Size = new Size(150, 50),
                 Font = new Font("Arial", 16, FontStyle.Regular),
-                Text = "Solve",
+                Text = @"Solve",
                 Location = new Point(50 + offsetX, 500 + offsetY)
             };
             
@@ -41,30 +31,29 @@ namespace SudokuSolver
             {
                 Size = new Size(150, 50),
                 Font = new Font("Arial", 16, FontStyle.Regular),
-                Text = "Check",
+                Text = @"Check",
                 Location = new Point(250 + offsetX, 500 + offsetY)
             };
 
-            solveResult = new Label()
+            var solveResult = new Label()
             {
                 Size = new Size(150, 40),
                 Font = new Font("Arial", 16, FontStyle.Regular),
                 TextAlign = ContentAlignment.MiddleCenter,
-                Text = "----------",
+                Text = @"----------",
                 Location = new Point(50 + offsetX, 460 + offsetY)
             };
 
-            checkResult = new Label()
+            var checkResult = new Label()
             {
                 Size = new Size(150, 40),
                 Font = new Font("Arial", 16, FontStyle.Regular),
                 TextAlign = ContentAlignment.MiddleCenter,
-                Text = "----------",
+                Text = @"----------",
                 Location = new Point(250 + offsetX, 460 + offsetY)
             };
 
             solveButton.Click += SolvePuzzle;
-            //checkButton.Click += CheckPuzzle;
 
             Controls.Add(solveButton);
             Controls.Add(checkButton);

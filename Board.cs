@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -18,10 +16,10 @@ namespace SudokuSolver
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
         private List<int> duplicates = new List<int>();
         private List<int> added = new List<int>();
-        private readonly int[] _digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        private readonly int[] digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         private Font defFont = new Font("Arial", 42, FontStyle.Regular);
-
-        /*private byte?[] difficultGrid =
+#if DEBUG
+        private byte?[] difficultGrid =
         {
             56, null, null, null, null, null, null, null, null, 
             null, null, 51, 54, null, null, null, null, null, 
@@ -32,20 +30,9 @@ namespace SudokuSolver
             null, null, 49, null, null, null, null, 54, 56, 
             null, null, 56, 53, null, null, null, 49, null, 
             null, 57, null, null, null, null, 52, null, null
-        };*/
-
-        private byte?[] difficultGrid =
-        {
-            56, null, null, null, null, 51, null, 55, null, 
-            null, null, null, 54, null, null, null, 57, null, 
-            null, null, null, null, null, null, 50, null, null, 
-            null, 53, null, null, null, null, null, null, null, 
-            null, null, 55, null, 52, 53, 49, null, null, 
-            null, null, null, 55, null, null, null, 51, null, 
-            null, null, 49, null, null, 56, null, 57, null, 
-            null, null, null, 53, null, null, null, null, null, 
-            null, 54, 56, null, 49, null, 52, null, null
         };
+#endif
+        
 
         public Board(int osX, int osY)
         {
@@ -56,14 +43,16 @@ namespace SudokuSolver
             Paint += DrawBoard;
             MouseMove += HighlightSquare;
             MouseDown += SelectSquare;
-            MouseLeave += (object sender, EventArgs args) =>
+            MouseLeave += (sender, args) =>
             {
                 mousePos = new Tuple<int, int>(1000, 1000);
                 Invalidate();
             };
             KeyDown += NumPress;
             LostFocus += DeselectSquare;
+#if DEBUG
             SetGrid(difficultGrid);
+#endif
             Invalidate();
         }
 
@@ -100,7 +89,7 @@ namespace SudokuSolver
 
         private void NumPress(object sender, KeyEventArgs args)
         {
-            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (_digits.Contains(args.KeyValue - 48) || _digits.Contains(args.KeyValue - 96)))
+            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (digits.Contains(args.KeyValue - 48) || digits.Contains(args.KeyValue - 96)))
             {
                 byte? key = args.KeyValue > 90 ? (byte?) (args.KeyValue - 48) : (byte?) args.KeyValue;
                 

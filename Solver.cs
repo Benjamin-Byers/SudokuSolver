@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Drawing;
-using System.Linq;
-using System.Net.Http.Headers;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
 
 namespace SudokuSolver
 {
@@ -48,15 +41,14 @@ namespace SudokuSolver
                 c = 0;
                 r += 3;
             }
-
-            Tile[] b = sBoard;
         }
         
         private void SetGrid(byte?[] grid)
         {
-            for (int i = 0; i < 81; i++)
+            int i = 0;
+            foreach (var tile in sBoard)
             {
-                sBoard[i].Digit = (byte?) (grid[i] - 48);
+                sBoard[tile.Id].Digit = (byte?) (grid[i++] - 48);
             }
 
             foreach (var tile in sBoard)
@@ -67,10 +59,9 @@ namespace SudokuSolver
 
         private void SetSolution()
         {
-            int i = 0;
             foreach (var tile in sBoard)
             {
-                solution[i++] = (byte?) (tile.Digit + 48);
+                solution[tile.Id] = (byte?) (tile.Digit + 48);
             }
         }
         
@@ -88,7 +79,7 @@ namespace SudokuSolver
                 int min = 9;
                 Tile minTile = null;
 
-                while (minTile == null)
+                while (true)
                 {
                     foreach (var tile in sBoard)
                     {
@@ -96,10 +87,13 @@ namespace SudokuSolver
                         {
                             foreach (var t in sBoard)
                             {
-                                t.SetOptionsBack();
+                                if (!t.SetOptionsBack())
+                                {
+                                    return;
+                                }
                             }
                             
-                            Tile.testIds.RemoveAt(Tile.testIds.Count - 1);
+                            Tile.TestIds.RemoveAt(Tile.TestIds.Count - 1);
 
                             reset = true;
                         }
@@ -133,7 +127,7 @@ namespace SudokuSolver
 
                 minTile.Digit = minTile.Options[0];
                 minTile.Test = true;
-                Tile.testIds.Add(minTile.Id);
+                Tile.TestIds.Add(minTile.Id);
                 _ = 1;
 
                 foreach (var tile in sBoard)
@@ -145,10 +139,13 @@ namespace SudokuSolver
                 {
                     foreach (var t in sBoard)
                     {
-                        t.SetOptionsBack();
+                        if (!t.SetOptionsBack())
+                        {
+                            return;
+                        }
                     }
                             
-                    Tile.testIds.RemoveAt(Tile.testIds.Count - 1);
+                    Tile.TestIds.RemoveAt(Tile.TestIds.Count - 1);
                 }
             }
         }

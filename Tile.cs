@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SudokuSolver
 {
@@ -11,7 +10,7 @@ namespace SudokuSolver
         private byte square;
         private byte depth;
         private bool test;
-        public static List<byte> testIds = new List<byte>();
+        public static List<byte> TestIds = new List<byte>();
         private List<byte?> digit = new List<byte?>();
         private List<List<byte>> options = new List<List<byte>>();
 
@@ -107,30 +106,28 @@ namespace SudokuSolver
                 digit.Add(digit[depth - 1]);
             }
             
-            if (this != alteredTile) { return; }
+            if (this != alteredTile || !alteredTile.Digit.HasValue) { return; }
             
             options[depth].Remove((byte) alteredTile.Digit);
         }
 
-        public void SetOptionsBack()
+        public bool SetOptionsBack()
         {
             options.RemoveAt(depth--);
 
-
-            if (id == testIds[^1])
+            if (TestIds.Count == 0)
             {
-                try
-                {
-                    options[depth].Remove((byte) digit[depth + 1]);
-                }
-                catch (Exception e)
-                {
-                    _ = 1;
-                }
+                return false;
+            }
+
+            if (id == TestIds[^1])
+            {
+                options[depth].Remove((byte) digit[depth + 1]);
                 test = false;
             }
             
             digit.RemoveAt(digit.Count - 1);
+            return true;
         }
     }
 }
