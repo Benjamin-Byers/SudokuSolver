@@ -86,8 +86,6 @@ namespace SudokuSolver
                 }
             }
 
-            _ = 1;
-            
             return (squares, columns, rows);
         }
 

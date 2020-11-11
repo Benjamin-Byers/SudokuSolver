@@ -8,25 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SudokuSolver //Bug: https://imgur.com/a/k1um51O
+namespace SudokuSolver
 {
-    public partial class Form1 : Form
+    public partial class SudokuSolution : Form
     {
-        private SudokuBoard board;
+        private Board board;
         private CheckSudoku check;
-        private SudokuSolve solve;
+        private Solver solve;
         private Label checkResult;
         private Label solveResult;
         private int BoardSize = 50;
         private List<int> duplicates;
         private int offsetX = 10;
         private int offsetY = 10;
-        public Form1()
+        public SudokuSolution()
         {
             InitializeComponent();
-            board = new SudokuBoard(offsetX, offsetY);
+            board = new Board(offsetX, offsetY);
             check = new CheckSudoku();
-            solve = new SudokuSolve(board, check);
+            solve = new Solver();
             
             
             Button solveButton = new Button()
@@ -64,7 +64,7 @@ namespace SudokuSolver //Bug: https://imgur.com/a/k1um51O
             };
 
             solveButton.Click += SolvePuzzle;
-            checkButton.Click += CheckPuzzle;
+            //checkButton.Click += CheckPuzzle;
 
             Controls.Add(solveButton);
             Controls.Add(checkButton);
@@ -77,47 +77,10 @@ namespace SudokuSolver //Bug: https://imgur.com/a/k1um51O
             MouseDown += Deselect;
         }
 
-        private void SolvePuzzle(object sender, EventArgs args)
+        private async void SolvePuzzle(object sender, EventArgs args)
         {
-            (bool valid, List<int> added) = solve.Solve();
-            board.SetAdded(added);
-            
-            if (valid)
-            {
-                solveResult.ForeColor = Color.DarkGreen;
-                solveResult.Text = "Solved";
-            }
-            else
-            {
-                solveResult.ForeColor = Color.Red;
-                solveResult.Text = "Puzzle";
-                CheckPuzzle(null, null);
-            }
-        }
-        
-        private void CheckPuzzle(object sender, EventArgs args)
-        {
-            bool valid;
-            (valid, duplicates) = check.CheckBoard(board.GetBoard(), true);
-            board.SetDuplicates(duplicates);
-            
-            if (valid)
-            {
-                checkResult.ForeColor = Color.DarkGreen;
-                checkResult.Text = "Valid";
-                if (solveResult.Text == "Puzzle")
-                {
-                    solveResult.ForeColor = Color.Black;
-                    solveResult.Text = "----------";
-                }
-            }
-            else
-            {
-                checkResult.ForeColor = Color.Red;
-                checkResult.Text = "Invalid";
-                solveResult.ForeColor = Color.Red;
-                solveResult.Text = "Puzzle";
-            }
+            await solve.MainMethod(board.SBoard);
+            board.SetGrid(solve.Solution);
         }
 
         private void Deselect(object sender, MouseEventArgs args)

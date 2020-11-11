@@ -6,10 +6,9 @@
     <e p="C:\Users\Ben Pls\RiderProjects\SudokuSolver" t="IncludeRecursive">
       <e p=".gitignore" t="Include" />
       <e p="bin" t="ExcludeRecursive" />
+      <e p="Board.cs" t="Include" />
       <e p="CheckSudoku.cs" t="Include" />
-      <e p="Form1.cs" t="Include" />
-      <e p="Form1.Designer.cs" t="Include" />
-      <e p="Form1.resx" t="Include" />
+      <e p="Issues.txt" t="Include" />
       <e p="obj" t="ExcludeRecursive">
         <e p="Debug" t="Include">
           <e p="netcoreapp3.1" t="Include">
@@ -19,10 +18,13 @@
       </e>
       <e p="packages" t="ExcludeRecursive" />
       <e p="Program.cs" t="Include" />
-      <e p="SudokuBoard.cs" t="Include" />
-      <e p="SudokuSolve.cs" t="Include" />
+      <e p="Solver.cs" t="Include" />
+      <e p="SudokuSolution.cs" t="Include" />
+      <e p="SudokuSolution.Designer.cs" t="Include" />
+      <e p="SudokuSolution.resx" t="Include" />
       <e p="SudokuSolver.csproj" t="IncludeRecursive" />
       <e p="SudokuSolver.sln" t="IncludeFlat" />
+      <e p="Tile.cs" t="Include" />
     </e>
   </component>
 </project>

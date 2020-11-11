@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver
 {
-    partial class Form1
+    partial class SudokuSolution
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,7 +29,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SudokuSolution));
             this.SuspendLayout();
             // 
             // Form1
@@ -41,7 +41,7 @@
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(420, 530);
             this.MinimumSize = new System.Drawing.Size(420, 530);
-            this.Name = "Form1";
+            this.Name = "SudokuSolution";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Sudoku Solver";
             this.ResumeLayout(false);

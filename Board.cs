@@ -8,11 +8,11 @@ using System.Windows.Forms;
 
 namespace SudokuSolver
 {
-    public class SudokuBoard : UserControl
+    public class Board : UserControl
     {
         private int offsetX;
         private int offsetY;
-        private char[] board = new char[81];
+        private byte?[] board = new byte?[81];
         private Tuple<int, int> mousePos = new Tuple<int, int>(1000, 1000);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
@@ -21,72 +21,33 @@ namespace SudokuSolver
         private readonly int[] _digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         private Font defFont = new Font("Arial", 42, FontStyle.Regular);
 
-        private int[][] validGrid =
+        /*private byte?[] difficultGrid =
         {
-            new [] {1, 2, 3, 7, 8, 9, 4, 5, 6},
-            new [] {4, 5, 6, 1, 2, 3, 7, 8, 9},
-            new [] {7, 8, 9, 4, 5, 6, 1, 2, 3},
-            new [] {2, 3, 1, 8, 9, 7, 5, 6, 4},
-            new [] {5, 6, 4, 2, 3, 1, 8, 9, 7},
-            new [] {8, 9, 7, 5, 6, 4, 2, 3, 1},
-            new [] {3, 1, 2, 9, 7, 8, 6, 4, 5},
-            new [] {6, 4, 5, 3, 1, 2, 9, 7, 8},
-            new [] {9, 7, 8, 6, 4, 5, 3, 1, 2}
-        };
-        
-        private int[][] testGrid =
-        {
-            new [] {1, 2, -16, -16, 9, 7, -16, -16, -16},
-            new [] {8, 7, -16, -16, 5, -16, -16, -16, 1},
-            new [] {-16, -16, 4, -16, -16, -16, 7, -16, 5},
-            new [] {9, -16, -16, 4, -16, 6, -16, 1, -16},
-            new [] {-16, 3, -16, 5, -16, 2, -16, 6, -16},
-            new [] {-16, 1, -16, 9, -16, 3, -16, -16, 7},
-            new [] {5, -16, 1, -16, -16, -16, 6, -16, -16},
-            new [] {7, -16, -16, -16, 2, -16, -16, 9, 8},
-            new [] {-16, -16, -16, 1, 3, -16, -16, 7, 4}
-        };
-        
-        private int[][] testGrid2 =
-        {
-            new [] {-16, -16, -16, 6, 5, -16, -16, -16, 9},
-            new [] {8, -16, 4, -16, -16, -16, -16, -16, -16},
-            new [] {5, -16, -16, 8, -16, -16, -16, 4, 6},
-            new [] {-16, 5, 3, -16, -16, 7, -16, 8, -16},
-            new [] {-16, -16, -16, 1, -16, 2, -16, -16, -16},
-            new [] {-16, 8, -16, 9, -16, -16, 4, 6, -16},
-            new [] {2, 9, -16, -16, -16, 1, -16, -16, 5},
-            new [] {-16, -16, -16, -16, -16, -16, 7, -16, 8},
-            new [] {7, -16, -16, -16, 2, 8, -16, -16, -16},
-        };
-        
-        private int[][] difficultGrid =
-        {
-            new [] { 08, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16,  03,  06, -16, -16, -16, -16, -16},
-            new [] {-16,  07, -16, -16,  09, -16,  02, -16, -16},
-            new [] {-16,  05, -16, -16, -16,  07, -16, -16, -16},
-            new [] {-16, -16, -16, -16,  04,  05,  07, -16, -16},
-            new [] {-16, -16, -16,  01, -16, -16, -16,  03, -16},
-            new [] {-16, -16,  01, -16, -16, -16, -16,  06,  08},
-            new [] {-16, -16,  08,  05, -16, -16, -16,  01, -16},
-            new [] {-16,  09, -16, -16, -16, -16,  04, -16, -16},
-        };
-        
-        /*private int[][] emptyGrid =
-        {
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
-            new [] {-16, -16, -16, -16, -16, -16, -16, -16, -16},
+            56, null, null, null, null, null, null, null, null, 
+            null, null, 51, 54, null, null, null, null, null, 
+            null, 55, null, null, 57, null, 50, null, null, 
+            null, 53, null, null, null, 55, null, null, null, 
+            null, null, null, null, 52, 53, 55, null, null, 
+            null, null, null, 49, null, null, null, 51, null, 
+            null, null, 49, null, null, null, null, 54, 56, 
+            null, null, 56, 53, null, null, null, 49, null, 
+            null, 57, null, null, null, null, 52, null, null
         };*/
-            
-        public SudokuBoard(int osX, int osY)
+
+        private byte?[] difficultGrid =
+        {
+            56, null, null, null, null, 51, null, 55, null, 
+            null, null, null, 54, null, null, null, 57, null, 
+            null, null, null, null, null, null, 50, null, null, 
+            null, 53, null, null, null, null, null, null, null, 
+            null, null, 55, null, 52, 53, 49, null, null, 
+            null, null, null, 55, null, null, null, 51, null, 
+            null, null, 49, null, null, 56, null, 57, null, 
+            null, null, null, 53, null, null, null, null, null, 
+            null, 54, 56, null, 49, null, 52, null, null
+        };
+
+        public Board(int osX, int osY)
         {
             offsetX = osX;
             offsetY = osY;
@@ -115,24 +76,13 @@ namespace SudokuSolver
             CreateBoard();
         }
 
-        private void SetGrid(int[][] grid)
+        public void SetGrid(byte?[] grid)
         {
-            for (int i = 0; i < 9; i++)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    board[j * 9 + i] = (char) (grid[j][i] + 48);
-                }
-            }
-        }
-
-        public char[] GetBoard() { return board;}
-
-        public void SetBoard(char[] Board)
-        {
-            board = Board;
+            board = grid;
             Invalidate();
         }
+
+        public byte?[] SBoard => board;
 
         public void SetDuplicates(List<int> dups)
         {
@@ -152,7 +102,7 @@ namespace SudokuSolver
         {
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (_digits.Contains(args.KeyValue - 48) || _digits.Contains(args.KeyValue - 96)))
             {
-                char key = args.KeyValue > 90 ? (char) (args.KeyValue - 48) : (char) args.KeyValue;
+                byte? key = args.KeyValue > 90 ? (byte?) (args.KeyValue - 48) : (byte?) args.KeyValue;
                 
                 int y = highlight.Item2 / 50;
                 int x = highlight.Item1 / 50;
@@ -166,16 +116,15 @@ namespace SudokuSolver
                 int y = highlight.Item2 / 50;
                 int x = highlight.Item1 / 50;
                 
-                UpdateBoard(x, y, ' ');
+                UpdateBoard(x, y, null);
                 duplicates.RemoveAll(i => i == y * 9 + x);
                 added.RemoveAll(i => i == y * 9 + x);
             }
         }
 
-        public void UpdateBoard(int x, int y, char digit)
+        public void UpdateBoard(int x, int y, byte? digit)
         {
-            int index = (y * 9) + x;
-            board[index] = digit;
+            board[y * 9 + x] = digit;
             Invalidate();
         }
 
@@ -205,7 +154,7 @@ namespace SudokuSolver
         {
             for (int i = 0; i < board.Length; i++)
             {
-                board[i] = ' ';
+                board[i] = null;
             }
         }
 
@@ -236,7 +185,7 @@ namespace SudokuSolver
                     brush = new SolidBrush(Color.Black);
                 }
 
-                args.Graphics.DrawString(board[i].ToString(), defFont, brush, new Point(x++ * 50 + 1, y * 50 - 7));
+                args.Graphics.DrawString((board[i] - 48).ToString(), defFont, brush, new Point(x++ * 50 + 1, y * 50 - 7));
             }
             
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)))
