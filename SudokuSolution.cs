@@ -4,6 +4,7 @@ using System.Windows.Forms;
 
 namespace SudokuSolver
 {
+    //14, 28, 31?, 32, 33*, 34*, 39?, 42?, 43?
     public partial class SudokuSolution : Form
     {
         private Board board;
@@ -80,13 +81,19 @@ namespace SudokuSolver
 
         private void DrawBoard(object sender, PaintEventArgs args)
         {
-            args.Graphics.DrawRectangle(new Pen(Color.Black, 3), new Rectangle(new Point(offsetX, offsetY), new Size(450, 450)));
+            args.Graphics.DrawRectangle(new Pen(Color.Black, 3), 
+                new Rectangle(new Point(offsetX, offsetY), 
+                    new Size(450, 450)));
             
             for (int i = 1; i < 9; i++)
             {
                 int penSize = (i) % 3 == 0 ? 3 : 1;  
-                args.Graphics.DrawLine(new Pen(Color.Black, penSize), new Point(BoardSize * i + offsetX, 0 + offsetY), new Point(BoardSize * i + offsetX, 450 + offsetY));
-                args.Graphics.DrawLine(new Pen(Color.Black, penSize), new Point(0 + offsetX, BoardSize * i + offsetY), new Point(450 + offsetX, BoardSize * i + offsetY));
+                args.Graphics.DrawLine(new Pen(Color.Black, penSize), 
+                    new Point(BoardSize * i + offsetX, 0 + offsetY), 
+                    new Point(BoardSize * i + offsetX, 450 + offsetY));
+                args.Graphics.DrawLine(new Pen(Color.Black, penSize),
+                    new Point(0 + offsetX, BoardSize * i + offsetY),
+                    new Point(450 + offsetX, BoardSize * i + offsetY));
             }
         }
     }

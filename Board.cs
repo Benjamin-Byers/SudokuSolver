@@ -8,18 +8,19 @@ namespace SudokuSolver
 {
     public class Board : UserControl
     {
-        private int offsetX;
-        private int offsetY;
+        private readonly int offsetX;
+        private readonly int offsetY;
         private byte?[] board = new byte?[81];
         private Tuple<int, int> mousePos = new Tuple<int, int>(1000, 1000);
         private Tuple<int, int> lastPos = new Tuple<int, int>(0, 0);
         private Tuple<int, int> highlight = new Tuple<int, int>(1000, 1000);
         private List<int> duplicates = new List<int>();
         private List<int> added = new List<int>();
-        private readonly int[] digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        private Font defFont = new Font("Arial", 42, FontStyle.Regular);
+        private static readonly int[] Digits = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        private readonly Font defFont = new Font("Arial", 42, FontStyle.Regular);
+        
 #if DEBUG
-        private byte?[] difficultGrid =
+        private readonly byte?[] difficultGrid =
         {
             56, null, null, null, null, null, null, null, null, 
             null, null, 51, 54, null, null, null, null, null, 
@@ -84,23 +85,11 @@ namespace SudokuSolver
 
         public byte?[] SBoard => board;
 
-        public void SetDuplicates(List<int> dups)
-        {
-            duplicates = dups;
-            added.Clear();
-            Invalidate();
-        }
-        
-        public void SetAdded(List<int> add)
-        {
-            added = add;
-            duplicates.Clear();
-            Invalidate();
-        }
-
         private void NumPress(object sender, KeyEventArgs args)
         {
-            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (digits.Contains(args.KeyValue - 48) || digits.Contains(args.KeyValue - 96)))
+            if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) 
+                && (Digits.Contains(args.KeyValue - 48) 
+                    || Digits.Contains(args.KeyValue - 96)))
             {
                 byte? key = args.KeyValue > 90 ? (byte?) (args.KeyValue - 48) : (byte?) args.KeyValue;
                 
@@ -111,7 +100,9 @@ namespace SudokuSolver
                 duplicates.RemoveAll(i => i == y * 9 + x);
                 added.RemoveAll(i => i == y * 9 + x);
             }
-            else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) && (args.KeyCode == Keys.Delete || args.KeyCode == Keys.Back))
+            else if (!highlight.Equals(new Tuple<int, int>(1000, 1000)) 
+                     && (args.KeyCode == Keys.Delete 
+                         || args.KeyCode == Keys.Back))
             {
                 int y = highlight.Item2 / 50;
                 int x = highlight.Item1 / 50;
@@ -122,7 +113,7 @@ namespace SudokuSolver
             }
         }
 
-        public void UpdateBoard(int x, int y, byte? digit)
+        private void UpdateBoard(int x, int y, byte? digit)
         {
             board[y * 9 + x] = digit;
             Invalidate();
@@ -162,7 +153,6 @@ namespace SudokuSolver
         {
             int x = 0;
             int y = 0;
-            SolidBrush brush;
 
             for (int i = 0; i < 81; i++)
             {
@@ -172,6 +162,7 @@ namespace SudokuSolver
                     x = 0;
                 }
 
+                SolidBrush brush;
                 if (duplicates.Contains(i))
                 {
                     brush = new SolidBrush(Color.Red);
@@ -190,10 +181,12 @@ namespace SudokuSolver
             
             if (!highlight.Equals(new Tuple<int, int>(1000, 1000)))
             {
-                args.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Black)), new Rectangle(new Point(highlight.Item1, highlight.Item2), new Size(50, 50)));
+                args.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Black)), 
+                    new Rectangle(new Point(highlight.Item1, highlight.Item2), new Size(50, 50)));
             }
             
-            args.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(64, Color.Black)), new Rectangle(new Point(mousePos.Item1, mousePos.Item2), new Size(50, 50)));
+            args.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(64, Color.Black)), 
+                new Rectangle(new Point(mousePos.Item1, mousePos.Item2), new Size(50, 50)));
         }
     }
 }

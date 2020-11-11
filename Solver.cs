@@ -36,7 +36,10 @@ namespace SudokuSolver
 
                 c += 3;
 
-                if (c <= 6) continue;
+                if (c <= 6)
+                {
+                    continue;
+                }
                 
                 c = 0;
                 r += 3;
@@ -69,9 +72,8 @@ namespace SudokuSolver
         {
             while (!CheckFull())
             {
-                bool altered;
                 bool reset = false;
-                altered = CheckTileOnlyOption();
+                bool altered = CheckTileOnlyOption();
                 if (altered) { continue; }
                 altered = CheckSquareOnlyOption();
                 if (altered) { continue; }
@@ -83,47 +85,58 @@ namespace SudokuSolver
                 {
                     foreach (var tile in sBoard)
                     {
-                        if (tile.Options.Count == 0 && tile.Digit == null)
+                        if (tile.Options.Count != 0 || tile.Digit != null)
                         {
-                            foreach (var t in sBoard)
-                            {
-                                if (!t.SetOptionsBack())
-                                {
-                                    return;
-                                }
-                            }
-                            
-                            Tile.TestIds.RemoveAt(Tile.TestIds.Count - 1);
-
-                            reset = true;
+                            continue;
                         }
+                        
+                        foreach (var t in sBoard)
+                        {
+                            if (!t.SetOptionsBack())
+                            {
+                                return;
+                            }
+                        }
+                            
+                        Tile.TestIds.RemoveAt(Tile.TestIds.Count - 1);
+
+                        reset = true;
                     }
 
                     if (reset) { break;}
                     
                     foreach (var tile in sBoard)
                     {
-                        if (tile.Options.Count < min && tile.Options.Count > 0 && !tile.Test)
+                        if (tile.Options.Count >= min || tile.Options.Count <= 0 || tile.Test)
                         {
-                            min = tile.Options.Count;
-                            minTile = tile;
-
-                            if (min < 3) { break; }
+                            continue;
                         }
+                        
+                        min = tile.Options.Count;
+                        minTile = tile;
+
+                        if (min < 3) { break; }
                     }
 
-                    if (minTile != null) break;
-                    
-                    if (!CheckFull())
+                    if (minTile != null)
                     {
-                        foreach (var tile in sBoard)
-                        {
-                            tile.SetOptionsBack();
-                        }
+                        break;
+                    }
+
+                    if (CheckFull())
+                    {
+                        continue;
+                    }
+                    foreach (var tile in sBoard)
+                    {
+                        tile.SetOptionsBack();
                     }
                 }
 
-                if (reset) { continue;}
+                if (reset)
+                {
+                    continue;
+                }
 
                 minTile.Digit = minTile.Options[0];
                 minTile.Test = true;
@@ -207,7 +220,10 @@ namespace SudokuSolver
                 {
                     for (int i = square; i < square + 9; i++)
                     {
-                        if (!sBoard[i].Options.Contains(num)) continue;
+                        if (!sBoard[i].Options.Contains(num))
+                        {
+                            continue;
+                        }
                         
                         if (selectedTile == null)
                         {
