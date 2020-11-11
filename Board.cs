@@ -51,7 +51,7 @@ namespace SudokuSolver
             KeyDown += NumPress;
             LostFocus += DeselectSquare;
 #if DEBUG
-            SetGrid(difficultGrid);
+            SetGrid(difficultGrid, true);
 #endif
             Invalidate();
         }
@@ -65,8 +65,19 @@ namespace SudokuSolver
             CreateBoard();
         }
 
-        public void SetGrid(byte?[] grid)
+        public void SetGrid(byte?[] grid, bool initial)
         {
+            if (!initial)
+            {
+                for (int i = 0; i < board.Length; i++)
+                {
+                    if (!board[i].HasValue)
+                    {
+                        added.Add(i);
+                    }
+                }
+            }
+            
             board = grid;
             Invalidate();
         }

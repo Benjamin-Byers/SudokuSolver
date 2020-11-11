@@ -9,7 +9,6 @@ namespace SudokuSolver
         private Board board;
         private Solver solve;
         private int BoardSize = 50;
-        //private List<int> duplicates;
         private int offsetX = 10;
         private int offsetY = 10;
         public SudokuSolution()
@@ -61,7 +60,6 @@ namespace SudokuSolver
             Controls.Add(checkResult);
             Controls.Add(board);
             
-            
             Paint += DrawBoard;
             MouseDown += Deselect;
         }
@@ -69,7 +67,7 @@ namespace SudokuSolver
         private async void SolvePuzzle(object sender, EventArgs args)
         {
             await solve.MainMethod(board.SBoard);
-            board.SetGrid(solve.Solution);
+            board.SetGrid(solve.Solution, false);
         }
 
         private void Deselect(object sender, MouseEventArgs args)
